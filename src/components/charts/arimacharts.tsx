@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 interface DataPoint {
@@ -6,21 +6,11 @@ interface DataPoint {
   value: number;
 }
 
-const ArimaChart: React.FC = () => {
-  const [data, setData] = useState<DataPoint[]>([]);
+interface ArimaChartProps {
+  data: DataPoint[]; // Accepts data as a prop
+}
 
-  useEffect(() => {
-    // Dummy data
-    const dummyData: DataPoint[] = [
-      { date: "2023-01-01", value: 100 },
-      { date: "2023-02-01", value: 110 },
-      { date: "2023-03-01", value: 105 },
-      { date: "2023-04-01", value: 115 },
-      { date: "2023-05-01", value: 120 },
-    ];
-    setData(dummyData);
-  }, []);
-
+const ArimaChart: React.FC<ArimaChartProps> = ({ data }) => {
   return (
     <div className="w-full p-6 bg-white shadow-lg rounded-lg">
       <h2 className="text-xl font-bold mb-4 text-center">ARIMA Model Predictions</h2>

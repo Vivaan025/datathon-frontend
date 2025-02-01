@@ -5,12 +5,14 @@ interface Point {
   lat: number;
   lng: number;
   name: string;
+  revenue: number;
 }
 
 interface NewPoint {
   lat: string;
   lng: string;
   name: string;
+  revenue: string;
 }
 
 declare global {
@@ -38,37 +40,59 @@ declare global {
 }
 
 const MapPointsViewer: React.FC = () => {
-  // Mumbai coordinates
   const MUMBAI_LAT = 19.0760;
   const MUMBAI_LNG = 72.8777;
 
   const [points, setPoints] = useState<Point[]>([
-    { lat: MUMBAI_LAT, lng: MUMBAI_LNG, name: 'Mumbai' },
-    { lat: 40.7128, lng: -74.0060, name: 'New York' },
-    { lat: 34.0522, lng: -118.2437, name: 'Los Angeles' },
-    { lat: 41.8781, lng: -87.6298, name: 'Chicago' },
-    { lat: 48.8566, lng: 2.3522, name: 'Paris' }
+    { lat: MUMBAI_LAT, lng: MUMBAI_LNG, name: 'Mumbai Central', revenue: 500000 },
+    { lat: 19.0883, lng: 72.8359, name: 'Bandra', revenue: 350000 },
+    { lat: 19.0178, lng: 72.8478, name: 'Worli', revenue: 420000 },
+    { lat: 18.9548, lng: 72.8224, name: 'Colaba', revenue: 280000 }
   ]);
 
   const [newPoint, setNewPoint] = useState<NewPoint>({
     lat: '',
     lng: '',
-    name: ''
+    name: '',
+    revenue: ''
   });
   
   const [map, setMap] = useState<any>(null);
 
+  // Format currency in Indian Rupees
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR'
+    }).format(amount);
+  };
+
   useEffect(() => {
     const style = document.createElement('style');
-    // style.textContent = `
-    //   .leaflet-default-icon-path {
-    //     background-image: url(https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png);
-    //   }
-    //   .leaflet-marker-icon {
-    //     background-image: url(https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png);
-    //     background-size: contain;
-    //   }
-    // `;
+    style.textContent = `
+      #map {
+    z-index: 0 !important; 
+  }
+      .leaflet-default-icon-path {
+        background-image: url(https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png);
+      }
+      .leaflet-marker-icon {
+        background-image: url(https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png);
+        background-size: contain;
+      }
+      .location-popup {
+        font-size: 14px;
+        line-height: 1.5;
+      }
+      .location-popup .revenue {
+        color: #16a34a;
+        font-weight: 600;
+      }
+      .modal {
+    z-index: 1050 !important; /* Ensure modal stays on top */
+    position: relative;
+  }
+    `;
     document.head.appendChild(style);
 
     const loadLeaflet = (): void => {
@@ -84,7 +108,6 @@ const MapPointsViewer: React.FC = () => {
 
       script.onload = () => {
         const L = window.L;
-        // Center on Mumbai with closer zoom level
         const mapInstance = L.map('map').setView([MUMBAI_LAT, MUMBAI_LNG], 11);
         
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -104,7 +127,12 @@ const MapPointsViewer: React.FC = () => {
 
         points.forEach(point => {
           L.marker([point.lat, point.lng])
-            .bindPopup(point.name)
+            .bindPopup(`
+              <div class="location-popup">
+                <strong>${point.name}</strong><br>
+                Expected Revenue: <span class="revenue">${formatCurrency(point.revenue)}</span>
+              </div>
+            `)
             .addTo(mapInstance);
         });
 
@@ -133,22 +161,28 @@ const MapPointsViewer: React.FC = () => {
 
       points.forEach(point => {
         window.L.marker([point.lat, point.lng])
-          .bindPopup(point.name)
+          .bindPopup(`
+            <div class="location-popup">
+              <strong>${point.name}</strong><br>
+              Expected Revenue: <span class="revenue">${formatCurrency(point.revenue)}</span>
+            </div>
+          `)
           .addTo(map);
       });
     }
   }, [points, map]);
 
   const handleAddPoint = (): void => {
-    if (newPoint.lat && newPoint.lng && newPoint.name) {
+    if (newPoint.lat && newPoint.lng && newPoint.name && newPoint.revenue) {
       const pointToAdd: Point = {
         lat: parseFloat(newPoint.lat),
         lng: parseFloat(newPoint.lng),
-        name: newPoint.name
+        name: newPoint.name,
+        revenue: parseFloat(newPoint.revenue)
       };
       
       setPoints(prevPoints => [...prevPoints, pointToAdd]);
-      setNewPoint({ lat: '', lng: '', name: '' });
+      setNewPoint({ lat: '', lng: '', name: '', revenue: '' });
     }
   };
 
@@ -165,7 +199,7 @@ const MapPointsViewer: React.FC = () => {
   return (
     <Card className="w-full max-w-4xl">
       <CardHeader>
-        <CardTitle>Mumbai Map Points</CardTitle>
+        <CardTitle>Mumbai Revenue Map</CardTitle>
       </CardHeader>
       <CardContent>
         
@@ -173,13 +207,20 @@ const MapPointsViewer: React.FC = () => {
         <div id="map" className="h-96 w-full rounded-lg border"></div>
         
         <div className="mt-4">
-          <h3 className="text-lg font-semibold mb-2">Points List</h3>
+          <h3 className="text-lg font-semibold mb-2">Revenue by Location</h3>
           <div className="space-y-2">
             {points.map((point, index) => (
-              <div key={index} className="p-2 bg-gray-100 rounded">
-                {point.name}: {point.lat}, {point.lng}
+              <div key={index} className="p-3 bg-gray-100 rounded flex justify-between items-center">
+                <span>{point.name}</span>
+                <span className="text-green-600 font-semibold">{formatCurrency(point.revenue)}</span>
               </div>
             ))}
+            <div className="p-3 bg-gray-200 rounded flex justify-between items-center font-semibold">
+              <span>Total Expected Revenue</span>
+              <span className="text-green-600">
+                {formatCurrency(points.reduce((sum, point) => sum + point.revenue, 0))}
+              </span>
+            </div>
           </div>
         </div>
       </CardContent>
