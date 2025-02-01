@@ -12,6 +12,8 @@ import {
   BarChart2,
   Users,
   HelpCircle,
+  User,
+  ShoppingCart,
 } from "lucide-react";
 import {
   Sidebar,
@@ -39,59 +41,44 @@ import { useState } from "react";
 // Menu items with grouping and badges
 const menuGroups = [
   {
-    label: "Overview",
+    label: "Data",
     items: [
       {
-        title: "Dashboard",
-        url: "#",
-        icon: Home,
+        title: "Customers",
+        url: "/dashboard/customers",
+        icon: User,
       },
       {
-        title: "Analytics",
-        url: "#",
+        title: "Stores",
+        url: "/dashboard/stores",
+        icon: ShoppingCart,
+        // badge: "New",
+      },
+      {
+        title: "Transactions",
+        url: "/dashboard/transactions",
         icon: BarChart2,
-        badge: "New",
+        // badge: "New",
       },
     ],
   },
   {
-    label: "Workspace",
+    label: "Predictions",
     items: [
       {
-        title: "Inbox",
-        url: "#",
+        title: "Store Locator",
+        url: "/dashboard/predictions/locations",
         icon: Inbox,
-        badge: "3",
       },
       {
-        title: "Calendar",
-        url: "#",
+        title: "Sales Forecast",
+        url: "/dashboard/predictions/sales",
         icon: Calendar,
       },
       {
-        title: "Team",
-        url: "#",
+        title: "Suggestions",
+        url: "/dashboard/predictions/suggestions",
         icon: Users,
-      },
-    ],
-  },
-  {
-    label: "Tools",
-    items: [
-      {
-        title: "Search",
-        url: "#",
-        icon: Search,
-      },
-      {
-        title: "Settings",
-        url: "#",
-        icon: Settings,
-      },
-      {
-        title: "Help Center",
-        url: "#",
-        icon: HelpCircle,
       },
     ],
   },
@@ -155,14 +142,6 @@ export function AppSidebar() {
                         <span className="ml-3 text-sm font-medium text-gray-700 group-hover:text-gray-900">
                           {item.title}
                         </span>
-                        {item.badge && (
-                          <Badge
-                            variant={item.badge === "New" ? "default" : "secondary"}
-                            className="ml-auto"
-                          >
-                            {item.badge}
-                          </Badge>
-                        )}
                       </a>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
