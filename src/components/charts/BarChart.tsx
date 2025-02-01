@@ -5,13 +5,17 @@ import { Chart as ChartJS, BarElement, CategoryScale, LinearScale, Tooltip, Lege
 
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
-const BarChart: React.FC = () => {
-  const data = {
-    labels: ["Jan", "Feb", "Mar", "Apr", "May"],
+interface BarChartProps {
+  labels: string[];
+  data: number[];
+}
+
+const BarChart: React.FC<BarChartProps> = ({ labels, data }) => {
+  const chartData = {
+    labels: labels,
     datasets: [
       {
-        label: "Revenue",
-        data: [100, 200, 150, 300, 400],
+        data: data,
         backgroundColor: "rgba(54, 162, 235, 0.5)",
         borderColor: "rgb(54, 162, 235)",
         borderWidth: 1,
@@ -21,13 +25,14 @@ const BarChart: React.FC = () => {
 
   const options = {
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: { display: true },
       tooltip: { enabled: true },
     },
   };
 
-  return <Bar data={data} options={options} />;
+  return <Bar data={chartData} options={options} />;
 };
 
 export default BarChart;

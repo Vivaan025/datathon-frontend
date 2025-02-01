@@ -27,7 +27,7 @@ const LineChart: React.FC = () => {
       legend: { display: true },
       tooltip: { enabled: true },
     },
-  };
+  };    
   
 
   return <Line data={data} options={options} />;
